@@ -27,6 +27,7 @@ router.register('response', responseViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('account/', include('account.urls')),
     path('o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
     path('authentication/', include('users.urls')),
     path('v1/', include(router.urls)),

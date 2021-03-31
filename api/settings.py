@@ -26,6 +26,8 @@ SECRET_KEY = '5r6bi#%l=30@8cr$21e^s&*icisw$4*xf8i(_5c^ev#mntywcm'
 DEBUG = True
 
 ALLOWED_HOSTS = ['10.61.64.41']
+MAX_TWEET_LENGTH = 240
+TWEET_ACTION_OPTIONS = ["likes", "dislikes", "comments"]
 
 
 # Application definition
@@ -41,6 +43,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'users',
     'piazza',
+    'account',
 ]
 
 MIDDLEWARE = [
