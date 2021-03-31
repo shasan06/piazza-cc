@@ -3,6 +3,7 @@ from .models import post, person, interaction, response
 from django.contrib.auth.models import User
 from django.utils import timezone
 from datetime import timedelta, datetime
+from django.db.models import Count
 
 
         
@@ -36,6 +37,12 @@ class personSerializer(serializers.ModelSerializer):
 
 
 class interactionSerializer(serializers.ModelSerializer):
+    #use agrregate function 'count' for total count
+    '''@property
+    def total_count(self):
+        return interaction.published.annotate(
+            total_comments = Count('comments')
+        )'''
     class Meta:
         model = interaction
         fields =('interactionID', 'postID', 'personID', 'response_type', 'comments', 'interacTimestamp')
@@ -45,7 +52,9 @@ class interactionSerializer(serializers.ModelSerializer):
 
 
 class responseSerializer(serializers.ModelSerializer):
-    #logic 4 ---- #to post the number of likes, dislikes, comments for a particular post
+    #logic 4 ---- #to post the number of likes, dislikes, comments for a particular post, i tried aggregate function above
+    
+
     '''def validate1(self, response):
         actionresponse = response['postInteractionID'].actions
         if actionresponse == 'Like':
