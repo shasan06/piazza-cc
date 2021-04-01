@@ -9,12 +9,12 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from .forms import TweetForm
 from rest_framework import viewsets
-from .models import post, person, interaction, response
+from .models import post, person, interaction
 from .serializers import (
     postSerializer, 
     personSerializer, 
     interactionSerializer, 
-    responseSerializer,
+    #responseSerializer,
     #some extra serializer
     TweetSerializer,
     TweetActionSerializer,
@@ -41,9 +41,9 @@ class interactionViewSet(viewsets.ModelViewSet):
     queryset = interaction.objects.all()
     serializer_class = interactionSerializer
 
-class responseViewSet(viewsets.ModelViewSet):
-    queryset = response.objects.all()
-    serializer_class = responseSerializer
+#class responseViewSet(viewsets.ModelViewSet):
+    #queryset = response.objects.all()
+    #serializer_class = responseSerializer
 
 #--------------
 #here I am trying to do some front end using function based view

@@ -1,13 +1,13 @@
 from django.conf import settings
 from rest_framework import serializers
-from .models import post, person, interaction, response
+from .models import post, person, interaction
 from django.contrib.auth.models import User
 from django.utils import timezone
 from datetime import timedelta, datetime
 from django.db.models import Count
 
 
-# some values initialised in the settings of the api
+# some values initialised in the settings of the api. This is some extra stuff that I tried to practice while trying to accomplish front end u.i design
 MAX_TWEET_LENGTH = settings.MAX_TWEET_LENGTH
 TWEET_ACTION_OPTIONS = settings.TWEET_ACTION_OPTIONS
 
@@ -19,17 +19,17 @@ class postSerializer(serializers.ModelSerializer):
         exptime['expireDateTime'] = expireDateTime
         return exptime
 
-    def status_validate(self, s):#logic2 for status that will expire after the expiration time (7 hours)
-        if self.timestamp > self.expireDateTime:#if the current time greater than the expiration time then the status should change from default(live) to expired
-            status = 'Expired'
-        s['status'] = status
-        return s
+    #def status_validate(self, s):#logic2 for status that will expire after the expiration time (7 hours)
+        #if self.timestamp > self.expireDateTime:#if the current time greater than the expiration time then the status should change from default(live) to expired
+            #status = 'Expired'
+        #s['status'] = status
+        #return s''' #--> this is done be in the post model 
     
     class Meta:
         model = post
         fields =('postID', 'title', 'politics', 'health', 'sports', 'tech', 'message', 'image', 'timestamp', 'expireDateTime',
-        'status', 'personID', 'status2', 'total_likes', 'total_dislikes', 'total_comments')
-        read_only_fields = ('postID', 'timestamp', 'expireDateTime', 'status', 'status2', 'total_likes', 'total_dislikes', 'total_comments')
+        'personID', 'status', 'total_likes', 'total_dislikes', 'total_comments')
+        read_only_fields = ('postID', 'timestamp', 'expireDateTime', 'status', 'total_likes', 'total_dislikes', 'total_comments')
 
 
 
@@ -37,49 +37,45 @@ class personSerializer(serializers.ModelSerializer):
     class Meta:
         model = person
         fields =('personID', 'personName')
-        #read_only_fields = ('personID') why this not working
+        
         
 
 
 class interactionSerializer(serializers.ModelSerializer):
-    #use agrregate function 'count' for total count
-    '''@property
-    def total_count(self):
-        return interaction.published.annotate(
-            total_comments = Count('comments')
-        )'''
+    
     class Meta:
         model = interaction
         fields =('interactionID', 'postID', 'personID', 'response_type', 'comments', 'interacTimestamp')
         read_only_fields = ('interactionID', 'interacTimestamp')
 
-    #logic 3 how to disable the response type when the current timestamp exceeds the expiration time?
+    #logic 3 to raise an error if a user tries to interact through 'response_type' to 
+    # a particular post when it is expired
     def validate_postID(self, post1):
         if post1.status2 == 'Expired':
             raise serializers.ValidationError('Can No Longer Interact With The Post')
         return post1
 
-
-class responseSerializer(serializers.ModelSerializer):
+#the below responseSerializer not needed
+#class responseSerializer(serializers.ModelSerializer):
     #logic 4 ---- #to post the number of likes, dislikes, comments for a particular post, i tried aggregate function above
     
 
-    '''def validate1(self, response):
-        actionresponse = response['postInteractionID'].actions
-        if actionresponse == 'Like':
-            response['no_of_like'] +=1
-        if actionresponse == 'Dislike':
-            response['no_of_dislike'] +=1   
-        if actionresponse == 'comment':
-            response['no_of_dislike'] +=1  
-        return  response'''
+    #def validate1(self, response):
+       # actionresponse = response['postInteractionID'].actions
+        #if actionresponse == 'Like':
+            #response['no_of_like'] +=1
+        #if actionresponse == 'Dislike':
+            #response['no_of_dislike'] +=1   
+        #if actionresponse == 'comment':
+            #response['no_of_dislike'] +=1  
+        #return  response'''
 
-    class Meta:
-        model = response
-        fields = ('no_of_like', 'no_of_dislike',
-                  'no_of_comment', 'postID', 'interactionID')
-        read_only_fields = ('no_of_like', 'no_of_dislike',
-                  'no_of_comment', 'postID', 'interactionID')
+    #class Meta:
+        #model = response
+        #fields = ('no_of_like', 'no_of_dislike',
+                  #'no_of_comment', 'postID', 'interactionID')
+        #read_only_fields = ('no_of_like', 'no_of_dislike',
+                  #'no_of_comment', 'postID', 'interactionID')
 
 #------------------
 #some of the extra serializers for the function based view

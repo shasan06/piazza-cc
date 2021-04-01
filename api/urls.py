@@ -20,7 +20,7 @@ from piazza.views import (
     postViewSet, 
     personViewSet, 
     interactionViewSet, 
-    responseViewSet,
+    #responseViewSet,
     home_view,
     tweet_delete_view,
     tweet_action_view,
@@ -34,7 +34,7 @@ router = DefaultRouter()
 router.register('post', postViewSet)
 router.register('person', personViewSet)
 router.register('interaction', interactionViewSet)
-router.register('response', responseViewSet)
+#router.register('response', responseViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
