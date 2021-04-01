@@ -1,0 +1,227 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class='row text-center'>
+    <div class='col'>
+        <h1>Welcome to Piazza</h1>
+    </div>
+
+</div>
+
+<div class='row mb-3'>
+    <div class='col-md-4 mx-auto col-10'>
+        <form class='form' id='tweet-create-form' method='POST' method='POST' action='/create-tweet'>
+            {% csrf_token %}
+            <div class='d-none alert alert-danger' id='tweet-create-form-error'></div>
+            <input type='hidden' value='/' name='next' />
+            <textarea required='required' class='form-control' name='message' placeholder='Your message...'></textarea>
+            <button type='submit' class='btn btn-primary'>Message</button>
+        </form>
+    </div>
+</div>
+
+
+<div class='row' id='piazza'>
+    Loading...
+</div>
+
+<script>
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+
+
+function handleTweetFormError(msg, display){
+    var myErrorDiv = document.getElementById("tweet-create-form-error")
+    if(display === true){
+        // show error
+        myErrorDiv.setAttribute("class", "d-block alert alert-danger")
+        myErrorDiv.innerText = msg
+    }else{
+        //hide error
+        myErrorDiv.setAttribute("class", "d-none alert alert-danger")
+    }
+}
+
+function handleMessageCreateFormDidSubmit(event){
+    event.preventDefault()
+    const myForm = event.target
+    const myFormData = new FormData(myForm)
+    const url = myForm.getAttribute("action")
+    const method = myForm.getAttribute("method")
+    const xhr = new XMLHttpRequest()
+    const responseType = "json"
+    xhr.responseType = responseType
+    xhr.open(method, url)
+    xhr.setRequestHeader("HTTP_X_REQUESTED_WITH", "XMLHttpRequest")
+    xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest")
+    xhr.onload = function() {
+        if (xhr.status === 201){
+            handleTweetFormError("", false)
+            const newTweetJson = xhr.response
+            //const newTweetJson = JSON.parse(newTweet)
+            //console.log(newTweetJson.likes)
+            const newTweetElement = formatTweetElement(newTweetJson)
+            //console.log(newTweetElement)
+            const ogHtml = piazzaContainerEl.innerHTML
+            piazzaContainerEl.innerHTML = newTweetElement + ogHtml
+           //piazzaContainerEl.prepend(newTweetElement)
+            myForm.reset()
+        }else if (xhr.status === 400){
+            const errorJson = xhr.response
+            //console.log(errorJson)
+            const contentError = errorJson.message
+            let contentErrorMsg;
+            if (contentError) {
+                contentErrorMsg = contentError[0]
+                if(contentErrorMsg){
+                    handleTweetFormError(contentErrorMsg, true)
+                }else{
+                    alert("An error occured. Please try again.")
+                }
+            }else{
+                alert("An error occured. Please try again.")
+            }
+            //console.log(contentErrorMsg)
+           // console.log(errorJson)
+        }else if(xhr.status === 401){
+            alert("You must login!")
+            window.location.href = "/login"
+        }else if(xhr.status === 403){
+            alert("You must login!")
+            window.location.href = "/login"
+        }
+        else if(xhr.status === 500){
+            alert("There was a server error, please try again.")
+        }
+        
+        //console.log(xhr.status, serverResponse)
+        //formatTweetElement(newTweet)
+        //const piazzaEl = document.getElementById("piazza")
+        //loadTweets(piazzaEl)
+    }
+    xhr.send(myFormData)
+    //console.log(endpoint, method)
+    //we got the form data as myFormData which is needed to be submitted to the backend
+    //console.log(myForm.getAttribute("action"))
+    //this is for testing the form data on the console
+    /*for(var myItem of myFormData.entries()) {
+        console.log(myItem)
+    }*/
+   // console.log(event)
+}
+
+const tweetCreateFormEl = document.getElementById("tweet-create-form")
+
+tweetCreateFormEl.addEventListener("submit", handleMessageCreateFormDidSubmit)
+
+const piazzaContainerEl = document.getElementById("piazza") //get an html element
+//once a tweet is created then we can dynamically reload them
+function loadTweets(piazzaElement){
+    const xhr = new XMLHttpRequest() // xhr = SomeClass()
+    const method = 'GET' // "POST"
+    const url = "/piazza" //url to return back json data 
+    const responseType = "json"
+    xhr.responseType = responseType
+    xhr.open(method, url)
+    xhr.onload = function() {
+    console.log(xhr.response)
+    const serverResponse = xhr.response
+    const listedItems = serverResponse//serverResponse.response //array
+    var finalTweetStr = ""
+    var i;
+    for(i=0;i<listedItems.length; i++){
+        var tweetObj = listedItems[i]
+        var currentItem = formatTweetElement(tweetObj)
+        finalTweetStr += currentItem
+    }
+    piazzaElement.innerHTML = finalTweetStr
+   // console.log(listedItems)
+}
+xhr.send()//triggers the request
+}
+
+loadTweets(piazzaContainerEl)
+// piazzaElement.innerHTML = 'Loading...'//set new html in that element
+// var el1 = "<h1>Hi there 1</h1>"
+// var el2 = "<h1>Hi there 2</h1>"
+// var el3 = "<h1>Hi there 3</h1>"
+// piazzaElement.innerHTML = el1 + el2 + el3
+
+
+
+function handleTweetActionBtn(tweet_id, currentCount, action){
+    console.log(tweet_id, currentCount)
+    //currentCount++
+    const url = "/api/piazza/action"
+    const method="POST"
+    const data = JSON.stringify({
+        id: tweet_id,
+        action: action
+    })
+    const xhr = new XMLHttpRequest()
+    const csrftoken = getCookie('csrftoken');
+    xhr.open(method, url)
+    xhr.setRequestHeader("Content-Type", "application/json")
+    xhr.setRequestHeader("HTTP_X_REQUESTED_WITH", "XMLHttpRequest")
+    xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest")
+    xhr.setRequestHeader("X-CSRFToken", csrftoken)
+    xhr.onload = function() {
+        //once used react.js this handle the state much better
+        //console.log(xhr.status, xhr.response)
+        loadTweets(piazzaContainerEl)//refresh all tweets
+    }
+    xhr.send(data)
+    return
+    
+}
+
+//this is retweet/comment button
+function CommentBtn(tweet){
+    return "<button class='btn btn-outline-success btn-sm' onclick=handleTweetActionBtn(" + 
+    tweet.id + ","+ tweet.likes + ",'comments')>Comments</button>"
+}
+
+//this is dislike/unlike button
+function DisLikeBtn(tweet){
+    return "<button class='btn btn-outline-primary btn-sm' onclick=handleTweetActionBtn(" + 
+    tweet.id + ","+ tweet.likes + ",'dislikes')> Dislikes</button>"
+}
+
+
+//this is a like button
+function LikeBtn(tweet){
+    return "<button class='btn btn-primary btn-sm' onclick=handleTweetActionBtn(" + 
+    tweet.id + ","+ tweet.likes + ",'likes')>" + tweet.likes + " Likes</button>"
+}
+
+function formatTweetElement(tweet) {
+
+    var formattedTweet = "<div class='col-12 col-md-10 mx-auto border rounded py-3 mb-4 tweet' id='tweet-" + tweet.id 
+    +"'><p>" + tweet.message + 
+        "</p><div class='btn-group'>" + 
+            LikeBtn(tweet) + 
+            DisLikeBtn(tweet) + 
+            CommentBtn(tweet) +
+        "</div></div>"
+    return formattedTweet
+}
+
+
+
+</script>
+{% endblock content %}

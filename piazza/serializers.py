@@ -28,8 +28,8 @@ class postSerializer(serializers.ModelSerializer):
     class Meta:
         model = post
         fields =('postID', 'title', 'politics', 'health', 'sports', 'tech', 'message', 'image', 'timestamp', 'expireDateTime',
-        'status', 'personID')
-        read_only_fields = ('postID', 'timestamp', 'expireDateTime', 'status')
+        'status', 'personID', 'status2', 'total_likes', 'total_dislikes', 'total_comments')
+        read_only_fields = ('postID', 'timestamp', 'expireDateTime', 'status', 'status2', 'total_likes', 'total_dislikes', 'total_comments')
 
 
 
@@ -53,7 +53,11 @@ class interactionSerializer(serializers.ModelSerializer):
         fields =('interactionID', 'postID', 'personID', 'response_type', 'comments', 'interacTimestamp')
         read_only_fields = ('interactionID', 'interacTimestamp')
 
-#logic 3 how to disable the response type when the current timestamp exceeds the expiration time?
+    #logic 3 how to disable the response type when the current timestamp exceeds the expiration time?
+    def validate_postID(self, post1):
+        if post1.status2 == 'Expired':
+            raise serializers.ValidationError('Can No Longer Interact With The Post')
+        return post1
 
 
 class responseSerializer(serializers.ModelSerializer):

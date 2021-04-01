@@ -24,8 +24,24 @@ class post(models.Model):
     status_option = [('Live','Live'), ('Expired','Expired')]
     status = models.CharField(max_length=100, choices=status_option, default='Live')
     personID = models.ForeignKey(User, on_delete=models.CASCADE)
-    
-
+    @property
+    def status2(self):
+        if timezone.now()>self.expireDateTime:
+            return 'Expired'
+        else:
+            return 'Live'
+    @property
+    def total_likes(self):
+        return self.interactions.filter(response_type='Like').count()#tell django u want the result of that join
+    @property
+    def total_dislikes(self):
+        return self.interactions.filter(response_type='Dislike').count()
+    '''@property
+    def total_comments(self):
+        return self.interactions.filter(response_type='Comments').count()'''
+    @property
+    def total_comments(self):#exclude--oposite of filter-- if not empty string means comments
+        return self.interactions.exclude(comments='').count()
 #the personId is unique and it should be in the post table as a FK(foreign key)
 class person(models.Model):
     personID = models.AutoField(primary_key=True)
@@ -36,7 +52,8 @@ class person(models.Model):
 #this table(interacton/response) depends on both the above table that is post and owner table
 class interaction(models.Model):
     interactionID = models.AutoField(primary_key=True)
-    postID = models.ForeignKey("post", on_delete=models.CASCADE)
+    postID = models.ForeignKey("post", on_delete=models.CASCADE, related_name='interactions')
+    
     personID = models.ForeignKey("person", on_delete=models.CASCADE)
     response_list = [('Like', 'Like'), ('Dislike', 'Dislike'),('Comments', 'Comments')]
     response_type = models.CharField(max_length=100, choices=response_list)

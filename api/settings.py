@@ -30,6 +30,7 @@ MAX_TWEET_LENGTH = 240
 TWEET_ACTION_OPTIONS = ["likes", "dislikes", "comments"]
 
 
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -57,13 +58,24 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+DEFAULT_RENDERER_CLASSES = [
+        'rest_framework.renderers.JSONRenderer',
+    ]
+    
+if DEBUG:
+    DEFAULT_RENDERER_CLASSES += [
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ]
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'oauth2_provider.contrib.rest_framework.OAuth2Authentication', 
         'rest_framework.authentication.SessionAuthentication',
         ),
     'DEFAULT_PERMISSION_CLASSES': (
-         'rest_framework.permissions.IsAuthenticated', ),
+         'rest_framework.permissions.IsAuthenticated',
+        ),
+    'DEFAULT_RENDERER_CLASSES': DEFAULT_RENDERER_CLASSES
 }
 
 AUTHENTICATION_BACKENDS = ( 
@@ -140,3 +152,21 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+    
+
+

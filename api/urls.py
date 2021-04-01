@@ -14,9 +14,20 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path #url()
 from rest_framework.routers import DefaultRouter
-from piazza.views import postViewSet, personViewSet, interactionViewSet, responseViewSet
+from piazza.views import (
+    postViewSet, 
+    personViewSet, 
+    interactionViewSet, 
+    responseViewSet,
+    home_view,
+    tweet_delete_view,
+    tweet_action_view,
+    tweet_detail_view,
+    tweet_list_view,
+    tweet_create_view,
+)
 
 
 router = DefaultRouter()
@@ -31,7 +42,18 @@ urlpatterns = [
     path('o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
     path('authentication/', include('users.urls')),
     path('v1/', include(router.urls)),
+    #front-end view url i.e end points given below
+    path('', home_view),
+    path('create-tweet', tweet_create_view),
+    path('piazza', tweet_list_view),
+    path('piazza/<int:tweet_id>', tweet_detail_view),
+    path('api/piazza/', include('piazza.urls')),
+
 ]
+
+
+
+
 
 
 
