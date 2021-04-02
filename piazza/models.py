@@ -33,6 +33,9 @@ class post(models.Model):
     #this status function will check if the current time exceeds the expired time then status is 'Expired' otherwise 'Live'
     @property
     def status(self):
+        #expiredate = self.expireDateTime
+        #if timezone.now()>self.expireDateTime:
+        #if timezone.now()>datetime.strptime(expiredate):
         if timezone.now()>self.expireDateTime:
             return 'Expired'
         else:

@@ -14,8 +14,9 @@ TWEET_ACTION_OPTIONS = settings.TWEET_ACTION_OPTIONS
 
 class postSerializer(serializers.ModelSerializer):
     def validate(self, exptime):#logic1 for expiration time delay for 7 hours so the post can stay up to 7 hours
-        expireDateTime = datetime.strftime(
-            timezone.now() + timedelta(hours=7), '%Y-%m-%d %H:%M:%S')
+        #expireDateTime = datetime.strftime(
+            #timezone.now() + timedelta(hours=7), '%Y-%m-%d %H:%M:%S')
+        expireDateTime = timezone.now() + timedelta(hours=7)
         exptime['expireDateTime'] = expireDateTime
         return exptime
 
@@ -51,7 +52,7 @@ class interactionSerializer(serializers.ModelSerializer):
     #logic 3 to raise an error if a user tries to interact through 'response_type' to 
     # a particular post when it is expired
     def validate_postID(self, post1):
-        if post1.status2 == 'Expired':
+        if post1.status == 'Expired':
             raise serializers.ValidationError('Can No Longer Interact With The Post')
         return post1
 
