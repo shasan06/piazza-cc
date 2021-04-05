@@ -68,7 +68,7 @@ class interaction(models.Model):
     personID = models.ForeignKey("person", on_delete=models.CASCADE)
     response_list = [('Like', 'Like'), ('Dislike', 'Dislike'),('Comments', 'Comments')]
     response_type = models.CharField(max_length=100, choices=response_list)
-    comments = models.CharField(max_length=600, blank=True)#note i used blank is true so that if any user wants to just like or dislike without giving any comments will be able to do. So the blank field of comments will be acceptable.
+    comments = models.CharField(max_length=255, blank=True)#note i used blank is true so that if any user wants to just like or dislike without giving any comments will be able to do. So the blank field of comments will be acceptable.
     interacTimestamp = models.DateTimeField(default=timezone.now)
     
 
