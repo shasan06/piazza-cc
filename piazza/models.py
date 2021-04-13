@@ -15,7 +15,7 @@ class post(models.Model):
     health = models.BooleanField()
     sports = models.BooleanField()
     tech = models.BooleanField()
-    message = models.CharField(max_length=240)
+    message = models.CharField(max_length=240, blank=True)#an empty message will be acceptable by the system blank = True
     image = models.FileField(upload_to='images/', blank=True, null=True)
     timestamp = models.DateTimeField(default=timezone.now)
     expireDateTime = models.DateTimeField(null=True)
