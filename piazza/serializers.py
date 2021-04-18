@@ -56,6 +56,13 @@ class interactionSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('Can No Longer Interact With The Post')
         return post1
 
+    #to validate that the post owner cannot interact with its own post--this will be done by checking(validating) post owners  post id
+    def validate_postID2(self, post2):
+        post_ID = post2['postID'].postID  #assigns the post id of a user who made  a post to a variable post_ID
+        if post2.postID == post_ID:#checks if the user postID is equal to the post owner postID
+            raise serializers.ValidationError('Post Owner Can No Longer Interact With Its Own Post')
+        return post2
+
 #the below responseSerializer not needed
 #class responseSerializer(serializers.ModelSerializer):
     #logic 4 ---- #to post the number of likes, dislikes, comments for a particular post, i tried aggregate function above
